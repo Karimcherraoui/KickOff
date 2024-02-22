@@ -18,7 +18,7 @@ const StartScreen = () => {
   const navigate = useNavigation();
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(fetchMatches("2024-02-21"));
+    dispatch(fetchMatches("2024-02-22"));
     dispatch(fetchLeagues());
   }, []);
   const handleClick = () => {
