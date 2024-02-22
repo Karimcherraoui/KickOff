@@ -1,7 +1,12 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
 import React from 'react'
+import { useSelector } from 'react-redux';
 
-const MatchDetailCard = () => {
+const MatchDetailCard = (props) => {
+
+    const matche = useSelector((state) => state.Matches.matches.events.find((match) => match.id === props.matchID));
+
+
   return (
     <View>
     <View style={styles.league}>
@@ -18,19 +23,19 @@ const MatchDetailCard = () => {
               }}
               style={styles.image}
             />
-            <Text style={styles.nameMatch}>Matches</Text>
+            <Text style={styles.nameMatch}>{matche.homeTeam.name}</Text>
           </View>
         </View>
         <Text style={styles.resultat}>1 - 0</Text>
         <View style={styles.match}>
           <View style={styles.team}>
-            <Text style={styles.nameMatch}>Matches</Text>
             <Image
               source={{
                 uri: "https://cdn.sportmonks.com/images/soccer/teams/21/53.png",
               }}
               style={styles.image}
             />
+              <Text style={styles.nameMatch}>{matche.awayTeam.name}</Text>
           </View>
         </View>
       </View>
@@ -140,7 +145,7 @@ const styles = StyleSheet.create({
     },
     nameMatch: {
       fontWeight: "bold",
-      fontSize: 20,
+      fontSize: 15,
       color: "black",
     },
     textTemp: {
@@ -189,15 +194,15 @@ const styles = StyleSheet.create({
       borderRadius: 25,
     },
     team: {
-      flexDirection: "row",
+      flexDirection: "column",
       alignItems: "center",
       gap: 10,
     },
     teams: {
       flexDirection: "row",
-      justifyContent: "center",
+      justifyContent: "space-between",
       alignItems: "center",
-      gap: 30,
+      gap: 20,
     },
     resultat: {
       color: "green",
