@@ -2,45 +2,50 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
   matches: [],
+  status: "idle",
+  error: null,
 };
 
-export const fetchMatchData = createAsyncThunk(
-  'matches/fetchMatchData',
-  async () => {
+export const fetchMatches = createAsyncThunk(
+  "matches/fetchMatches",
+  async (date, thunkAPI) => {
     try {
-      const apiKey = 'UTm0sjKAIAdjbKbuQ4147EtMg802CezWpTH7yyAyl40F3touVZT4aTmhacCa'; 
-      const response = await fetch('https://api.sportmonks.com/v3/football/fixtures', {
-        headers: {
-          'Authorization': `${apiKey}`
-        }
-      });
+      const response = await fetch(
+        `https://api.sofascore.com/api/v1/sport/football/scheduled-events/${date}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch matches");
+      }
+      
       const data = await response.json();
       return data;
     } catch (error) {
-      throw Error('Failed to fetch match data');
+      return thunkAPI.rejectWithValue({ error: error.message });
     }
   }
 );
-
 const matchesSlice = createSlice({
   name: "matches",
   initialState,
   reducers: {
-    logMatches: (state) => {
-      console.log(state.matches);
-    },
-    clearMatches: (state) => {
-      state.matches = []; 
-    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMatchData.fulfilled, (state, action) => {
+      .addCase(fetchMatches.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchMatches.fulfilled, (state, action) => {
+        state.status = "succeeded";
         state.matches = action.payload;
+      
+      })
+      .addCase(fetchMatches.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload.error;
       });
   },
 });
-
-export const { logMatches, clearMatches } = matchesSlice.actions;
+export const { logMatches } = matchesSlice.actions;
 
 export default matchesSlice.reducer;
