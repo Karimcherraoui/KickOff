@@ -3,14 +3,12 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  ImageBackground,
   Image,
   FlatList,
 } from "react-native";
-import React, { useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { Dropdown } from "react-native-element-dropdown";
-import { fetchMatches, logMatches } from "../../features/matchesSlice";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
@@ -19,8 +17,9 @@ const MatcheCard = () => {
   const navigate = useNavigation();
   const matches = useSelector((state) => state.Matches.matches);
   const leagues = useSelector((state) => state.Leagues.leagues);
-  const handlClick = () => {
-    navigate.navigate("MatchesDetailScreen");
+  const handlClick = (matchId) => {
+    console.log("click",matchId);
+    navigate.navigate("MatchesDetailScreen",{matchId});
   };
   const [value, setValue] = useState(null);
 
@@ -38,7 +37,10 @@ const MatcheCard = () => {
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={leagues.uniqueTournaments?.map((item) => ({ label: item.name, value: item.id }))}
+          data={leagues.uniqueTournaments?.map((item) => ({
+            label: item.name,
+            value: item.id,
+          }))}
           search
           maxHeight={300}
           labelField="label"
@@ -69,19 +71,19 @@ const MatcheCard = () => {
             : matches.events.filter(
                 (item) => item.tournament.uniqueTournament.id === value
               )
-        
         }
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.imageBackground}>
-            <Pressable onPress={handlClick} style={styles.pressable}>
+            <Pressable onPress={() => handlClick(item.id)} style={styles.pressable}>
               <View style={styles.leagueinfo}>
-              <Image source={
-                {uri:`https://api.sofascore.app/api/v1/unique-tournament/7/image `}
-              }
-              style={styles.imageTour} 
-              />
-              <Text style={styles.leagueName}>{item.tournament.name}</Text>
+                <Image
+                  source={{
+                    uri: `https://api.sofascore.app/api/v1/unique-tournament/${item.tournament.uniqueTournament.id}/image`,
+                  }}
+                  style={styles.imageTour}
+                />
+                <Text style={styles.leagueName}>{item.tournament.name}</Text>
               </View>
               <View style={styles.teams}>
                 <View style={styles.match}>
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
   temp: {
     flexDirection: "row",
     justifyContent: "center",
-    margin: 5,
+    marginTop: 20,
   },
   nameTeam: {
     fontWeight: "bold",
@@ -245,12 +247,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 20,
+    gap: 10,
+    marginBottom: 20,
   },
   imageTour: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
+    width: 30,
+    height: 30,
+
   },
 });
-
