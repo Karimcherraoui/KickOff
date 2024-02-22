@@ -1,13 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { StyleSheet, Text, View } from "react-native";
+import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Tab from "./src/components/navigations/Tab";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import store from "./src/store";
-import Start from "./src/screens/Start";
-import MatchDetail from "./src/screens/MatchDetail";
-import StackComp from "./src/components/navigations/Stack";
+import StartScreen from "./src/screens/StartScreen";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -21,8 +18,7 @@ export default function App() {
             headerShown: false,
           }}
         >
-          <Stack.Screen name="start" component={Start} />
-          {/* <Stack.Screen name="matchDetail" component={MatchDetail} /> */}
+          <Stack.Screen name="start" component={StartScreen} />
           <Stack.Screen name="tab" component={Tab} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -32,9 +28,14 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
-      backgroundColor: "#fff",
-      alignItems: "center",
-      justifyContent: "center",
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  background: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
 });
