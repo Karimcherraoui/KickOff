@@ -11,7 +11,6 @@ export const fetchLeagues = createAsyncThunk(
   async ( thunkAPI) => {
     try {
       const response = await fetch(
-        // `https://api.sofascore.com/api/v1/config/default-unique-tournaments/MA/football`
         `https://api.sofascore.com/api/v1/config/top-unique-tournaments/MA/football`
       );
       if (!response.ok) {
