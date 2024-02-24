@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Feather } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import MatchScreen from "../../screens/MatchScreen";
@@ -9,11 +9,11 @@ import PlayerScreen from "../../screens/PlayerScreen";
 import FavorieScreen from "../../screens/FavorieScreen";
 import MatchesDetailScreen from "../../screens/MatchesDetailScreen";
 import PlayersDetailScreen from "../../screens/PlayersDetailScreen";
-
+import { useNavigation } from "@react-navigation/native";
 
 const Tab = () => {
   const Tab = createBottomTabNavigator();
-
+  const navigation = useNavigation();
   return (
     <>
       <StatusBar hidden={false} barStyle={"black"} />
@@ -30,6 +30,18 @@ const Tab = () => {
             tabBarStyle: {
               backgroundColor: "transparent",
             },
+            headerShown: true,
+            headerLeft: () => (
+              <Feather
+                name="arrow-left"
+                size={24}
+                color="black"
+                style={{ marginLeft: 20 }}
+                onPress={() => {
+                  navigation.navigate("MatchScreen");
+                }}
+              />
+            ),
           }}
         >
           <Tab.Screen
@@ -62,7 +74,7 @@ const Tab = () => {
           <Tab.Screen
             name="MatchesDetailScreen"
             component={MatchesDetailScreen}
-            options={{ tabBarButton: () => null }} 
+            options={{ tabBarButton: () => null }}
           />
           <Tab.Screen
             name="PlayerDetailScreen"
