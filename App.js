@@ -17,6 +17,7 @@ export default function App() {
           screenOptions={{
             headerShown: false,
           }}
+
         >
           <Stack.Screen name="start" component={StartScreen} />
           <Stack.Screen name="tab" component={Tab} />
