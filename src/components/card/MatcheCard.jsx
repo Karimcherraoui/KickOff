@@ -5,26 +5,34 @@ import {
   Pressable,
   Image,
   FlatList,
+  Button,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+import { Foundation } from '@expo/vector-icons';
+import { fetchOneMatche, fetchOnePlayer } from "../../features/matchesSlice";
 
 const MatcheCard = () => {
   const navigate = useNavigation();
+  const dispatch = useDispatch();
   const matches = useSelector((state) => state.Matches.matches);
   const leagues = useSelector((state) => state.Leagues.leagues);
   const handlClick = (matchId) => {
-    console.log("click",matchId);
+    dispatch(fetchOneMatche(matchId));
+    dispatch(fetchOnePlayer(matchId));
     navigate.navigate("MatchesDetailScreen",{matchId});
   };
   const [value, setValue] = useState(null);
 
   return (
     <>
+    <View style={styles.filter}>
+
       <LinearGradient
         colors={["#b20000", "#ff6666"]}
         start={{ x: 0, y: 0 }}
@@ -60,15 +68,23 @@ const MatcheCard = () => {
             />
           )}
         />
+      
       </LinearGradient>
+      <TouchableOpacity
+        onPress={() => setValue(null)}
+        style={styles.reset}
+      >
+        <Text style={styles.resetText}>All Matches</Text>
+      </TouchableOpacity>
+        </View>
 
       <FlatList
         style={styles.container}
         ItemSeparatorComponent={() => <View style={{ marginBottom: 20 }} />}
         data={
           value === null
-            ? matches.events
-            : matches.events.filter(
+            ? matches
+            : matches.filter(
                 (item) => item.tournament.uniqueTournament.id === value
               )
         }
@@ -77,16 +93,20 @@ const MatcheCard = () => {
           <View style={styles.imageBackground}>
             <Pressable onPress={() => handlClick(item.id)} style={styles.pressable}>
               <View style={styles.leagueinfo}>
+                <View style={styles.infoLeague}>
                 <Image
                   source={{
                     uri: `https://api.sofascore.app/api/v1/unique-tournament/${item.tournament.uniqueTournament.id}/image`,
                   }}
                   style={styles.imageTour}
-                />
+                  />
                 <Text style={styles.leagueName}>{item.tournament.name}</Text>
+                  </View>
+                <Foundation name="star" size={24} color="gray" />
               </View>
               <View style={styles.teams}>
                 <View style={styles.match}>
+
                   <View style={styles.team}>
                     <Image
                       source={{
@@ -98,7 +118,7 @@ const MatcheCard = () => {
                   </View>
                 </View>
                 <Text style={styles.resultat}>
-                  <Text>{item.homeScore.display}</Text> -{" "}
+                  <Text>{item.homeScore.display}</Text> -
                   <Text>{item.awayScore.display}</Text>
                 </Text>
                 <View style={styles.match}>
@@ -149,6 +169,15 @@ const styles = StyleSheet.create({
   pressable: {
     padding: 20,
   },
+  infoLeague: {
+    display: "flex",
+    flexDirection: "row",
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    justifyItems: "center",
+    gap: 10,
+  },
   match: {
     flexDirection: "row",
     justifyContent: "center",
@@ -188,6 +217,8 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 16,
+    color: "white",
+
   },
   iconStyle: {
     width: 20,
@@ -205,8 +236,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderRadius: 10,
     marginVertical: 10,
-    marginHorizontal: 40,
+    // marginHorizontal: 40,
     padding: 10,
+    width:'70%',
   },
   image: {
     width: 40,
@@ -245,14 +277,32 @@ const styles = StyleSheet.create({
   },
   leagueinfo: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    gap: 10,
+    justifyContent: "space-between",
     marginBottom: 20,
   },
   imageTour: {
     width: 30,
     height: 30,
 
+  },
+  filter: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    padding: 10,
+  },
+  reset: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "black",
+    borderColor: "red",
+    borderWidth: 1,
+  },
+  resetText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
