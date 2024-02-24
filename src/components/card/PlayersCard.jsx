@@ -5,35 +5,47 @@ import {
   Pressable,
   ImageBackground,
   Image,
+  ScrollView,
 } from "react-native";
 import React from "react";
 
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import { clearMatch } from "../../features/matchesSlice";
 
 const PlayersCard = () => {
   const navigate = useNavigation();
+
+const players = useSelector((state) => state.Players.players);
+const handleClick = (id) => {
+  navigate.navigate("PlayerDetailScreen", { playerId: id });
+}
+
   return (
-    <>
-      <View style={styles.container}>
+    <ScrollView ScrollView>
+      {players?.map((player) => (   
+      <View style={styles.container} key={player.id}>
         <ImageBackground
-          source={require("../../../assets/match.jpg")}
+          source={require("../../../assets/back.jpeg")}
           style={styles.imageBackground}
         >
           <Pressable
-            onPress={() => navigate.navigate("PlayerDetailScreen")}
+            onPress={() => handleClick(player.id)}
             style={styles.pressable}
           >
             <Image
               source={{
-                uri: "https://cdn.sportmonks.com/images/soccer/teams/21/53.png",
+                uri: `${player.player_picture}`,
               }}
               style={styles.image}
             />
-            <Text style={styles.namePlayer}>Amine Pessi</Text>
+            <Text style={styles.namePlayer}>{player.player_name}</Text>
           </Pressable>
         </ImageBackground>
       </View>
-    </>
+        ))
+      }
+    </ScrollView>
   );
 };
 
@@ -59,7 +71,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: 30,
+    gap: 10,
     padding: 20,
   },
 
@@ -67,11 +79,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 20,
     color: "white",
+    backgroundColor: "black",
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 10,
   },
 
   image: {
-    width: 40,
-    height: 40,
+    width: 70,
+    height: 70,
     borderRadius: 25,
+    backgroundColor: "white",
+
   },
 });
