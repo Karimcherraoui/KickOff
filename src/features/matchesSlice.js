@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
   matches: [],
@@ -12,57 +13,56 @@ export const fetchMatches = createAsyncThunk(
   "matches/fetchMatches",
   async (date, thunkAPI) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://api.sofascore.com/api/v1/sport/football/scheduled-events/${date}`
       );
-      if (!response.ok) {
+      if (response.status >= 200 && response.status <= 299) {
+        return response.data.events;
+      } else {
         throw new Error("Failed to fetch matches");
       }
-      
-      const data = await response.json();
-      return data.events;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
   }
 );
+
 export const fetchOneMatche = createAsyncThunk(
   "matches/fetchOneMatche",
   async (matchID, thunkAPI) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://api.sofascore.com/api/v1/event/${matchID}`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch matches");
+      if (response.status >= 200 && response.status <= 299) {
+        return response.data.event;
+      } else {
+        throw new Error("Failed to fetch match");
       }
-      
-      const data = await response.json();
-      console.log(data.event);
-      return data.event;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
   }
 );
+
 export const fetchOnePlayer = createAsyncThunk(
   "players/fetchOnePlayer",
   async (matchID, thunkAPI) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://api.sofascore.com/api/v1/event/${matchID}/incidents`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch matches");
+      if (response.status >= 200 && response.status <= 299) {
+        return response.data.incidents;
+      } else {
+        throw new Error("Failed to fetch player");
       }
-      
-      const data = await response.json();
-      return data.incidents;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
   }
 );
+
 const matchesSlice = createSlice({
   name: "matches",
   initialState,
@@ -80,11 +80,10 @@ const matchesSlice = createSlice({
       .addCase(fetchMatches.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.matches = action.payload;
-      
       })
       .addCase(fetchMatches.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.error;
+        state.error = action.payload ? action.payload.error : "Unknown error";
       })
       .addCase(fetchOnePlayer.pending, (state) => {
         state.status = "loading";
@@ -96,7 +95,7 @@ const matchesSlice = createSlice({
       })
       .addCase(fetchOnePlayer.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.error;
+        state.error = action.payload ? action.payload.error : "Unknown error";
       })
       .addCase(fetchOneMatche.pending, (state) => {
         state.status = "loading";
@@ -108,7 +107,7 @@ const matchesSlice = createSlice({
       })
       .addCase(fetchOneMatche.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.error;
+        state.error = action.payload ? action.payload.error : "Unknown error";
       });
   },
 });
