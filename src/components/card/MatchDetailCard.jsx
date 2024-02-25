@@ -17,6 +17,9 @@ const MatchDetailCard = () => {
   const matche = useSelector((state) => state.Matches.oneMatche);
   const player = useSelector((state) => state.Matches.players);
   console.log(matche);
+  if (!matche) {
+    return <Text>Loading...</Text>; // Handle case where matche is null
+  }
   const home = player?.filter(
     (item) => item.incidentType === "goal" && item.isHome === true
   );
