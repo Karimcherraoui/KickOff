@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
   players: [],
@@ -8,28 +9,26 @@ const initialState = {
 
 export const fetchPlayer = createAsyncThunk(
   "players/fetchPlayer",
-  async ( thunkAPI) => {
+  async (_, thunkAPI) => { // Ajout du paramètre _
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://www.footballtransfers.com/en/players/actions/overview/overview`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch matches");
+      if (response.status >= 200 && response.status <= 299) { // Vérifier le code de statut HTTP
+        return response.data.records;
+      } else {
+        throw new Error("Failed to fetch players");
       }
-      
-      const data = await response.json();
-      return data.records;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
   }
 );
+
 const playerSlice = createSlice({
   name: "players",
   initialState,
-  reducers: {
-
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchPlayer.pending, (state) => {
@@ -42,11 +41,9 @@ const playerSlice = createSlice({
       })
       .addCase(fetchPlayer.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.error;
-      })
-     
+        state.error = action.payload ? action.payload.error : "Unknown error";
+      });
   },
 });
-export const { clearMatch } = playerSlice.actions;
 
 export default playerSlice.reducer;
