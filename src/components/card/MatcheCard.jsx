@@ -14,69 +14,71 @@ import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import { Foundation } from '@expo/vector-icons';
+import { Foundation } from "@expo/vector-icons";
 import { fetchOneMatche, fetchOnePlayer } from "../../features/matchesSlice";
+import { fetchFavories, removeFavorie } from "../../features/favorieSlice";
 
 const MatcheCard = () => {
   const navigate = useNavigation();
   const dispatch = useDispatch();
   const matches = useSelector((state) => state.Matches.matches);
   const leagues = useSelector((state) => state.Leagues.leagues);
+  const [isFavorie, setIsFavorie] = useState(false);
   const handlClick = (matchId) => {
     dispatch(fetchOneMatche(matchId));
     dispatch(fetchOnePlayer(matchId));
-    navigate.navigate("MatchesDetailScreen",{matchId});
+    navigate.navigate("MatchesDetailScreen", { matchId });
+  };
+  const handlClickFavorie = (matchId) => {
+    setIsFavorie((prevIsFavorie) => !prevIsFavorie); 
+      dispatch(fetchFavories(matchId));
+    navigate.navigate("FavorieScreen");
   };
   const [value, setValue] = useState(null);
 
   return (
     <>
-    <View style={styles.filter}>
-
-      <LinearGradient
-        colors={["#b20000", "#ff6666"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.buttonGradient}
-      >
-        <Dropdown
-          style={styles.dropdown}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          data={leagues.uniqueTournaments?.map((item) => ({
-            label: item.name,
-            value: item.id,
-          }))}
-          search
-          maxHeight={300}
-          labelField="label"
-          valueField="value"
-          placeholder="Select League"
-          searchPlaceholder="Search..."
-          value={value}
-          onChange={(item) => {
-            setValue(item.value);
-          }}
-          renderLeftIcon={() => (
-            <AntDesign
-              style={styles.icon}
-              color="white"
-              name="Safety"
-              size={20}
-            />
-          )}
-        />
-      
-      </LinearGradient>
-      <TouchableOpacity
-        onPress={() => setValue(null)}
-        style={styles.reset}
-      >
-        <Text style={styles.resetText}>All Matches</Text>
-      </TouchableOpacity>
-        </View>
+      <View style={styles.filter}>
+        <LinearGradient
+          colors={["#b20000", "#ff6666"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.buttonGradient}
+        >
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            inputSearchStyle={styles.inputSearchStyle}
+            iconStyle={styles.iconStyle}
+            data={leagues.uniqueTournaments?.map((item) => ({
+              label: item.name,
+              value: item.id,
+            }))}
+            search
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Select League"
+            searchPlaceholder="Search..."
+            value={value}
+            onChange={(item) => {
+              setValue(item.value);
+            }}
+            renderLeftIcon={() => (
+              <AntDesign
+                style={styles.icon}
+                color="white"
+                name="Safety"
+                size={20}
+              />
+            )}
+          />
+        </LinearGradient>
+        <TouchableOpacity onPress={() => setValue(null)} style={styles.reset}>
+          <Text style={styles.resetText}>All Matches</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         style={styles.container}
@@ -91,22 +93,30 @@ const MatcheCard = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.imageBackground}>
-            <Pressable onPress={() => handlClick(item.id)} style={styles.pressable}>
+            <Pressable
+              onPress={() => handlClick(item.id)}
+              style={styles.pressable}
+            >
               <View style={styles.leagueinfo}>
                 <View style={styles.infoLeague}>
-                <Image
-                  source={{
-                    uri: `https://api.sofascore.app/api/v1/unique-tournament/${item.tournament.uniqueTournament.id}/image`,
-                  }}
-                  style={styles.imageTour}
+                  <Image
+                    source={{
+                      uri: `https://api.sofascore.app/api/v1/unique-tournament/${item.tournament.uniqueTournament.id}/image`,
+                    }}
+                    style={styles.imageTour}
                   />
-                <Text style={styles.leagueName}>{item.tournament.name}</Text>
-                  </View>
-                <Foundation name="star" size={24} color="gray" />
+                  <Text style={styles.leagueName}>{item.tournament.name}</Text>
+                </View>
+                <Pressable onPress={()=>handlClickFavorie(item.id)} testID="favorie-button" >
+                {isFavorie ? (
+                  <Foundation name="star" size={24} color="orange" />
+                ) : (
+                  <Foundation name="star" size={24} color="gray" />
+                )}
+                </Pressable>
               </View>
               <View style={styles.teams}>
                 <View style={styles.match}>
-
                   <View style={styles.team}>
                     <Image
                       source={{
@@ -218,7 +228,6 @@ const styles = StyleSheet.create({
   selectedTextStyle: {
     fontSize: 16,
     color: "white",
-
   },
   iconStyle: {
     width: 20,
@@ -238,7 +247,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     // marginHorizontal: 40,
     padding: 10,
-    width:'70%',
+    width: "70%",
   },
   image: {
     width: 40,
@@ -284,7 +293,6 @@ const styles = StyleSheet.create({
   imageTour: {
     width: 30,
     height: 30,
-
   },
   filter: {
     display: "flex",
