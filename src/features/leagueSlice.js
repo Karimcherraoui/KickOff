@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
   leagues: [],
@@ -8,27 +9,27 @@ const initialState = {
 
 export const fetchLeagues = createAsyncThunk(
   "leagues/fetchLeagues",
-  async ( thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://api.sofascore.com/api/v1/config/top-unique-tournaments/MA/football`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch Leagues");
+      if (response.status >= 200 && response.status < 300) {
+        // Si le code de statut est dans la plage 200, cela signifie que la requête a réussi
+        return response.data;
+      } else {
+        throw new Error("Failed to fetch leagues");
       }
-      
-      const data = await response.json();
-      return data;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
   }
 );
+
 const leaguesSlice = createSlice({
   name: "leagues",
   initialState,
-  reducers: {
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchLeagues.pending, (state) => {
@@ -38,11 +39,10 @@ const leaguesSlice = createSlice({
       .addCase(fetchLeagues.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.leagues = action.payload;
-      
       })
       .addCase(fetchLeagues.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.error;
+        state.error = action.payload ? action.payload.error : "Unknown error";
       });
   },
 });
