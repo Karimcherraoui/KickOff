@@ -15,6 +15,7 @@ import { fetchMatches } from "../features/matchesSlice";
 import { fetchLeagues } from "../features/leagueSlice";
 import { fetchPlayer } from "../features/playerSlice";
 
+
 const StartScreen = () => {
   const navigate = useNavigation();
   const dispatch = useDispatch();
