@@ -10,27 +10,35 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Foundation } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { fetchOneMatche, fetchOnePlayer } from "../../features/matchesSlice";
+import {styles} from "../../styles/favoriCard";
+import { toggleFavourite } from "../../features/favorieSlice";
 
 const FavorieCard = () => {
   const navigate = useNavigation();
   const dispatch = useDispatch();
-  const matches = useSelector((state) => state.Favories.favories);
-  console.log("matches", matches);
+  const favories = useSelector((state) => state.Favories.favories);
+  const matches = useSelector((state) => state.Matches.matches);
+    const matchFavorie = matches.filter(({id})=> favories.includes(id))
+
   const handlClick = (matchId) => {
     dispatch(fetchOneMatche(matchId));
     dispatch(fetchOnePlayer(matchId));
     navigate.navigate("MatchesDetailScreen", { matchId });
   };
-  const [value, setValue] = useState(null);
+  const handlClickFavorie = (matchId) => {
+    dispatch(toggleFavourite(matchId));
+};
 
   return (
     <>
+
       <FlatList
         style={styles.container}
         ItemSeparatorComponent={() => <View style={{ marginBottom: 20 }} />}
-        data={matches}
+        data={matchFavorie}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.imageBackground}>
@@ -46,6 +54,13 @@ const FavorieCard = () => {
                   style={styles.imageTour}
                 />
                 <Text style={styles.leagueName}>{item.tournament.name}</Text>
+                <Pressable onPress={()=>handlClickFavorie(item.id)} testID="favorie-button" >
+                {favories.includes(item.id) ? (
+                  <Foundation name="star" size={24} color="orange" />
+                ) : (
+                  <Foundation name="star" size={24} color="gray" />
+                )}
+                </Pressable>
               </View>
               <View style={styles.teams}>
                 <View style={styles.match}>
@@ -56,7 +71,7 @@ const FavorieCard = () => {
                       }}
                       style={styles.image}
                     />
-                    <Text style={styles.nameTeam}>{item.homeTeam.coutry.name}</Text>
+                    <Text style={styles.nameTeam}>{item.homeTeam.country.name}</Text>
                   </View>
                 </View>
                 <Text style={styles.resultat}>
@@ -84,157 +99,11 @@ const FavorieCard = () => {
             </Pressable>
           </View>
         )}
-      />
+      /> 
+
     </>
   );
 };
 
 export default FavorieCard;
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.1,
-  },
-  imageBackground: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  pressable: {
-    padding: 20,
-  },
-  match: {
-    flexDirection: "row",
-    justifyContent: "center",
-    // margin: 5,
-  },
-  temp: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  nameTeam: {
-    fontWeight: "bold",
-    fontSize: 15,
-    color: "black",
-    width: 100,
-    textAlign: "center",
-  },
-  textTemp: {
-    fontSize: 15,
-    color: "#bcbcbc",
-  },
-  league: {
-    fontWeight: "bold",
-    fontSize: 15,
-    color: "red",
-  },
-  dropdown: {
-    color: "white",
-  },
-  icon: {
-    marginRight: 5,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-    color: "white",
-    marginLeft: 20,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: "white",
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-  buttonGradient: {
-    borderRadius: 10,
-    padding: 10,
-    height: 50,
-    borderBottomColor: "gray",
-    borderBottomWidth: 0.5,
-    borderRadius: 10,
-    marginVertical: 10,
-    // marginHorizontal: 40,
-    padding: 10,
-    width: "70%",
-  },
-  image: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-  },
-  team: {
-    flexDirection: "column",
-    alignItems: "center",
-
-    gap: 10,
-  },
-  teams: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 20,
-  },
-  vs: {
-    color: "red",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  resultat: {
-    color: "green",
-    fontSize: 30,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-
-  leagueName: {
-    color: "#bcbcbc",
-    fontSize: 15,
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  leagueinfo: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 20,
-  },
-  imageTour: {
-    width: 30,
-    height: 30,
-  },
-  filter: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    padding: 10,
-  },
-  reset: {
-    padding: 15,
-    borderRadius: 10,
-    backgroundColor: "black",
-    borderColor: "red",
-    borderWidth: 1,
-  },
-  resetText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-});
